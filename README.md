@@ -1,0 +1,1 @@
+# vtb_moretech_2022
