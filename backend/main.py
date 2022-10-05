@@ -9,8 +9,8 @@ from typing import List
 from .src.entities.app_params import NewsData, ArticleData
 from .src.utils import load_model, make_preds, get_content
 
-PREDICTOR_HOST = os.environ.get("HOST", default="0.0.0.0")
-PREDICTOR_PORT = os.environ.get("PORT", default=8501)
+HOST_ADDRESS = os.environ.get("HOST", default="0.0.0.0")
+PORT_NUMBER = os.environ.get("PORT", default=8501)
 
 
 logger = logging.getLogger(__name__)
@@ -65,4 +65,4 @@ def article(article_id: int = None):
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host=PREDICTOR_HOST, port=PREDICTOR_PORT)
+    uvicorn.run("main:app", host=HOST_ADDRESS, port=PORT_NUMBER)
