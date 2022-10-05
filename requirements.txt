@@ -1,14 +1,9 @@
 # This file may be used to create an environment using:
 # $ conda create --name <env> --file <this file>
 # platform: linux-64
-notebook==6.4.12
 numpy==1.22.3
-scipy==1.7.3
 pandas==1.4.4
-matplotlib==3.5.2
 scikit-learn==1.1.1
-scikit-learn-intelex==2021.4.0
-streamlit==1.11.0
 fastapi==0.85.0
 uvicorn==0.18.3
 pydantic==1.10.2
