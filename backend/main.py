@@ -7,8 +7,8 @@ from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
 from typing import List
 
-from .src.entities.app_params import NewsData, ArticleData
-from .src.utils import load_model, make_preds, get_content
+from src.entities.app_params import NewsData, ArticleData
+from src.utils import load_model, make_preds, get_content
 
 HOST_ADDRESS = os.environ.get('HOST', default='0.0.0.0')
 PORT_NUMBER = os.environ.get('PORT', default=8501)
