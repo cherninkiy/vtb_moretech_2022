@@ -4,18 +4,19 @@ import threading
 import uvicorn
 import logging
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import FileResponse
 from typing import List
 
 from .src.entities.app_params import NewsData, ArticleData
 from .src.utils import load_model, make_preds, get_content
 
-HOST_ADDRESS = os.environ.get("HOST", default="0.0.0.0")
-PORT_NUMBER = os.environ.get("PORT", default=8501)
+HOST_ADDRESS = os.environ.get('HOST', default='0.0.0.0')
+PORT_NUMBER = os.environ.get('PORT', default=8501)
+HTML_PATH = os.path.join(os.path.dirname(__file__), 'src/html')
 
 
 logger = logging.getLogger(__name__)
 app = FastAPI()
-
 
 @app.on_event("startup")
 def startup():
@@ -32,7 +33,13 @@ def shutdown():
 
 @app.get("/")
 def main():
-    return "New Kids on the Court"
+    global landing_page
+    return FileResponse(f'{HTML_PATH}/index.html')
+
+
+@app.get('/favicon.ico')
+def favicon():
+    return FileResponse(f'{HTML_PATH}/favicon.ico')
 
 
 @app.get("/status")
