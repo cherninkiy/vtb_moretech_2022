@@ -33,7 +33,6 @@ def shutdown():
 
 @app.get("/")
 def main():
-    global landing_page
     return FileResponse(f'{HTML_PATH}/index.html')
 
 
