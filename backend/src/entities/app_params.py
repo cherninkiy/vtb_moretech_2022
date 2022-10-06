@@ -16,10 +16,10 @@ class NewsData(BaseModel):
     def from_id(cls, id):
         result = NewsData()
         result.article_id = id
-        result.url = "http://"
-        result.title = "Title"
-        result.topic = "Topic"
-        result.tags = "Tags"
+        result.url = f"http://url_article_{id}"
+        result.title = f"Title article {id}"
+        result.topic = f"Topic article {id}"
+        result.tags = f"Tags article {id}"
         result.tmstamp = datetime.now()
         return result
 
@@ -31,10 +31,10 @@ class ArticleData(NewsData):
     def from_id(cls, id):
         result = ArticleData()
         result.article_id = id
-        result.url = "http://"
-        result.title = "Title"
-        result.topic = "Topic"
-        result.tags = "Tags"
+        result.url = f"http://url_article_{id}"
+        result.title = f"Title article {id}"
+        result.topic = f"Topic article {id}"
+        result.tags = f"Tags article {id}"
         result.tmstamp = datetime.now()
-        result.content = "Content"
+        result.content = f"Content article {id}"
         return result
