@@ -33,4 +33,5 @@ def get_trends(topic_preds, topic_trends, date):
     news = topic_preds.loc[mask1 & mask2, ['title', 'orig_title', 'url', 'topic']].head(5).copy()
     news['topic'] = news['topic'].apply(' '.join)
     news = news.rename(columns={'title': 'keywords', 'orig_title': 'title'})
-    return news.to_dict(orient='index')
+    result = list(news.to_dict(orient='index').values())
+    return result
