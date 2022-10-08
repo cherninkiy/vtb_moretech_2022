@@ -1,13 +1,21 @@
 import os
 import re
 import sys
+import pytz
 import logging
+import argparse
+from datetime import datetime, timedelta
+from dateutil.parser import parse as datetime_parse
+from dateutil.relativedelta import relativedelta
 from telethon import TelegramClient
-import pandas as pd
+
 
 API_ID = os.environ.get('TELEGRAM_API_ID', default='')
 API_HASH = os.environ.get('TELEGRAM_API_HASH', default='')
 SESSION_NAME = os.environ.get('TELEGRAM_SESSION_NAME', default='anon')
+
+API_ID = 14140753
+API_HASH = 'd7e3c70e36665cfedcec18a6fc027ee2'
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -19,14 +27,20 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def load_data(channel, last_message_id, message_limit=1000):
+def localize_datetime(dt):
+    tz = pytz.timezone('UTC')
+    return tz.localize(dt, is_dst=None).astimezone(pytz.utc)
+
+
+def scrap_tg_channel(channel, date_from, date_till):
     result = []
     with TelegramClient(SESSION_NAME, API_ID, API_HASH) as client:
         logger.info(client)
         for message in client.iter_messages(channel,
-                                            min_id=last_message_id,
-                                            limit = message_limit,
+                                            offset_date=date_from,
                                             reverse=True):
+            if message.date > date_till:
+                break
 
             if not message.text or len(message.text) == 0:
                 logger.info(f'SKIPPED {channel}/{message.id}')
@@ -54,25 +68,15 @@ def load_data(channel, last_message_id, message_limit=1000):
 
 
 if __name__ == "__main__":
-    channels = [
-        'https://t.me/netipichniy_buh',
-        'https://t.me/accwhisper',
-        'https://t.me/shifrnalogov',
-        'https://t.me/typical_buh',
 
-        'https://t.me/egdru',
-        'https://t.me/vipgendir',
-        'https://t.me/gendirector_maxim'
-    ]
-    last_message_id = 0
-    message_limit = 10000
-    
-    result = []
-    for channel in channels:
-        news = load_data(channel, last_message_id=last_message_id, message_limit=message_limit)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--date_from")
+    parser.add_argument("--date_till")
+    parser.add_argument("--channel")
+    args = parser.parse_args()
 
-        if len(news) > 0:
-            result.extend(news)
-            
-            csv_path = f"tg-channels.csv"
-            pd.DataFrame(result).to_csv(csv_path)
+    date_from = localize_datetime(datetime_parse(args.date_from, dayfirst=True))
+    date_till = localize_datetime(datetime_parse(args.date_till, dayfirst=True))
+
+    result = scrap_tg_channel(args.channel, date_from, date_till)
+    print(result)

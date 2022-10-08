@@ -1,10 +1,8 @@
-import os
-import re
 import sys
 import logging
 import requests
-import xmltodict
 from bs4 import BeautifulSoup
+
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.DEBUG)
@@ -16,7 +14,7 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 
 
-def load_text(url):
+def scrap_article_page(url):
     r = requests.get(url)
     if r.status_code != 200:
         return ''
@@ -26,28 +24,23 @@ def load_text(url):
     return ' '.join(b.get_text() for b in blocks)
 
 
-def load_data(url):
+def scrap_lenta_rss(url):
     r = requests.get(url)
     if r.status_code != 200:
         return []
 
-    doc = xmltodict.parse(r.content)
-    assert('rss' in doc.keys())
-    assert('channel' in doc['rss'].keys())
-    assert('item' in doc['rss']['channel'].keys())
+    soup = BeautifulSoup(r.text, "xml")
 
     result = []
-    for item in doc['rss']['channel']['item']:
-        article_url = item.get('guid', '')
+    for item in soup.select('item'):
+        article_url = item.select_one('guid').get_text()
         article = {
             'url': article_url,
-            'title': item.get('title', ''),
-            'abstract': item.get('description', ''),
-            'text': load_text(article_url),
-            'topic': item.get('categoty', ''),
+            'title': item.select_one('title').get_text(),
+            'text': scrap_article_page(article_url),
+            'topic': item.select_one('category').get_text(),
             'tags': '',
-            'date': item.get('pubDate', ''),
-            'offset': '',
+            'date': item.select_one('pubDate').get_text(),
         }
 
         result.append(article)
@@ -59,4 +52,5 @@ def load_data(url):
 if __name__ == "__main__":
     url = 'https://lenta.ru/rss'
     
-    load_data(url)
+    result = scrap_lenta_rss(url)
+    print(result)
