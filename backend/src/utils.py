@@ -11,8 +11,18 @@ def make_preds(model, user_id):
     return [NewsData.from_id(random.randint(0, 1000)) for i in range(3)]
 
 
-def get_content(article_id):
-    return ArticleData.from_id(article_id)
+def get_content(topic_preds, article_id):
+    filter = topic_preds.index == article_id
+    columns = ['title', 'orig_title', 'url', 'topic']
+    article = topic_preds.loc[filter, columns]
+    article['topic'] = article['topic'].apply(' '.join)
+    article = article.rename(columns={'title': 'keywords', 'orig_title': 'title'})
+    result = article.to_dict(orient='index')
+    for k in result.keys():
+        result[k]['id'] = k
+        result[k]['page'] = f"https://vtb-moretech2022.herokuapp.com/article?article_id={k}"
+    result = list(result.values())
+    return result
 
 
 def setup_logger(logger):
@@ -33,5 +43,9 @@ def get_trends(topic_preds, topic_trends, date):
     news = topic_preds.loc[mask1 & mask2, ['title', 'orig_title', 'url', 'topic']].head(5).copy()
     news['topic'] = news['topic'].apply(' '.join)
     news = news.rename(columns={'title': 'keywords', 'orig_title': 'title'})
-    result = list(news.to_dict(orient='index').values())
+    result = news.to_dict(orient='index')
+    for k in result.keys():
+        result[k]['id'] = k
+        result[k]['page'] = f"https://vtb-moretech2022.herokuapp.com/article?article_id={k}"
+    result = list(result.values())
     return result

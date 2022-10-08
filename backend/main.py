@@ -84,6 +84,7 @@ def status():
     ]
     return result
 
+
 @app.api_route("/trends", methods=["GET", "POST"])
 def trends(date: str = ""):
     if len(date) == 0:
@@ -101,24 +102,25 @@ def trends(date: str = ""):
 
 
 @app.api_route("/news", response_model=List[NewsData], methods=["GET", "POST"])
-def news(user_id: int = None):
+def news(id: int = None):
     global trends_model
-    if user_id is None:
+    if id is None:
         raise HTTPException(
             status_code=404,
-            detail=f"Invalid User ID"
+            detail=f"Invalid Request Parameter: id={id}"
         )
-    return make_preds(trends_model, user_id)
+    return make_preds(trends_model, id)
 
 
-@app.api_route("/article", response_model=ArticleData, methods=["GET", "POST"])
-def article(article_id: int = None):
-    if article_id is None:
+@app.api_route("/article", methods=["GET", "POST"])
+def article(id: int = None):
+    if id is None:
         raise HTTPException(
             status_code=404,
-            detail=f"Invalid User ID"
+            detail=f"Invalid Request Parameter: id={id}"
         )
-    return get_content(article_id)
+    global topic_preds
+    return get_content(topic_preds, id)
 
 
 if __name__ == "__main__":
