@@ -14,8 +14,8 @@ HOST_ADDRESS = os.environ.get('HOST', default='0.0.0.0')
 PORT_NUMBER = os.environ.get('PORT', default=8501)
 HTML_PATH = os.path.join(os.path.dirname(__file__), 'src/html')
 
-DATA_PATH = os.environ.get('DATA_PATH', "/data")
-MODELS_PATH = os.environ.get('MODELS_PATH', "/models")
+DATA_PATH = os.environ.get('DATA_PATH', "data")
+MODELS_PATH = os.environ.get('MODELS_PATH', "models")
 
 logger = logging.getLogger("uvicorn")
 app = FastAPI()
