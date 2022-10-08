@@ -1,13 +1,8 @@
-import os
-import re
 import sys
-import time
 import logging
 import requests
-import xmltodict
-import pandas as pd
+import argparse
 from bs4 import BeautifulSoup
-from datetime import datetime
 from dateutil.parser import parse as datetime_parse
 from dateutil.relativedelta import relativedelta
 
@@ -73,8 +68,8 @@ def scrap_news_list(url, date):
 
 def scrap_consultant_news(rubcircs_url, date_from, date_till, dayfirst=True):
     url = rubcircs_url.rstrip('/')
-    date_cur = datetime_parse(date_from, dayfirst=dayfirst)
-    date_end = datetime_parse(date_till, dayfirst=dayfirst)
+    date_cur = date_from
+    date_end = date_till
 
     result = []
     while date_cur <= date_end:
@@ -91,13 +86,18 @@ def scrap_consultant_news(rubcircs_url, date_from, date_till, dayfirst=True):
 
         date_cur += relativedelta(months=1)
 
-    csv_path = f"consultant-news-{date_from}-{date_till}.csv"
-    pd.DataFrame(result).to_csv(csv_path)
-
     return result
 
+
 if __name__ == "__main__":
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--date_from")
+    parser.add_argument("--date_till")
+    args = parser.parse_args()
+
+    date_from = datetime_parse(args.date_from, dayfirst=True)
+    date_till = datetime_parse(args.date_till, dayfirst=True)
+
     url = 'https://www.consultant.ru/legalnews/chronomap/'
-    date_from = "01.01.2022" #datetime.now().strftime('%d.%m.%y')
-    date_till = "08.10.2022" #datetime.now().strftime('%d.%m.%y')
     result = scrap_consultant_news(url, date_from, date_till)
+    print(result)
