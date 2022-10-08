@@ -20,7 +20,7 @@ def get_content(topic_preds, article_id):
     result = article.to_dict(orient='index')
     for k in result.keys():
         result[k]['id'] = k
-        result[k]['page'] = f"https://vtb-moretech2022.herokuapp.com/article?article_id={k}"
+        result[k]['page'] = f"https://vtb-moretech2022.herokuapp.com/article?id={k}"
     result = list(result.values())
     return result
 
@@ -46,6 +46,6 @@ def get_trends(topic_preds, topic_trends, date):
     result = news.to_dict(orient='index')
     for k in result.keys():
         result[k]['id'] = k
-        result[k]['page'] = f"https://vtb-moretech2022.herokuapp.com/article?article_id={k}"
+        result[k]['page'] = f"https://vtb-moretech2022.herokuapp.com/article?id={k}"
     result = list(result.values())
     return result
