@@ -3,7 +3,7 @@ import re
 import sys
 import logging
 from telethon import TelegramClient
-
+import pandas as pd
 
 API_ID = os.environ.get('TELEGRAM_API_ID', default='')
 API_HASH = os.environ.get('TELEGRAM_API_HASH', default='')
@@ -28,7 +28,7 @@ def load_data(channel, last_message_id, message_limit=1000):
                                             limit = message_limit,
                                             reverse=True):
 
-            if len(message.text) == 0:
+            if not message.text or len(message.text) == 0:
                 logger.info(f'SKIPPED {channel}/{message.id}')
             else:
                 article = {
@@ -38,7 +38,6 @@ def load_data(channel, last_message_id, message_limit=1000):
                     'topic': '',
                     'tags': '',
                     'date': message.date,
-                    'offset': message.id,
                 }
 
                 m = re.findall(r'^\*{2,3}([^\*]+)\*{2,3}', message.text) 
@@ -55,8 +54,25 @@ def load_data(channel, last_message_id, message_limit=1000):
 
 
 if __name__ == "__main__":
-    channel = 'https://t.me/government_rus'
-    last_message_id = 4800
-    message_limit = 1000
+    channels = [
+        'https://t.me/netipichniy_buh',
+        'https://t.me/accwhisper',
+        'https://t.me/shifrnalogov',
+        'https://t.me/typical_buh',
+
+        'https://t.me/egdru',
+        'https://t.me/vipgendir',
+        'https://t.me/gendirector_maxim'
+    ]
+    last_message_id = 0
+    message_limit = 10000
     
-    load_data(channel, last_message_id=last_message_id, message_limit=message_limit)
+    result = []
+    for channel in channels:
+        news = load_data(channel, last_message_id=last_message_id, message_limit=message_limit)
+
+        if len(news) > 0:
+            result.extend(news)
+            
+            csv_path = f"tg-channels.csv"
+            pd.DataFrame(result).to_csv(csv_path)
