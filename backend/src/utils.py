@@ -59,11 +59,11 @@ def get_digest(role_feats, vectorizer, df, date):
         cos_dist.append(cosine(role_feats, doc_feats))
     df_date['cos_dist'] = cos_dist
 
-    dijest = df_date.sort_values(by='cos_dist', ascending=False).head(5).copy()
+    digest = df_date.sort_values(by='cos_dist', ascending=False).head(5).copy()
 
-    dijest['topic'] = dijest['topic'].apply(' '.join)
-    dijest = dijest.rename(columns={'title': 'keywords', 'orig_title': 'title'})
-    result = dijest.drop(columns=['cos_dist']).to_dict(orient='index')
+    digest['topic'] = digest['topic'].apply(' '.join)
+    digest = digest.rename(columns={'title': 'keywords', 'orig_title': 'title'})
+    result = digest.drop(columns=['cos_dist']).to_dict(orient='index')
     for k in result.keys():
         result[k]['href'] = f"https://vtb-moretech2022.herokuapp.com/article?id={k}"
         result[k]['id'] = k

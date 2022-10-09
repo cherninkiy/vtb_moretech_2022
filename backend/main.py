@@ -116,8 +116,8 @@ def trends(date: str = ""):
     return get_trends(topic_preds, topic_trends, trends_date)
 
 
-@app.api_route("/dijest", methods=["GET", "POST"])
-def dijest(role: str = "", date: str = ""):
+@app.api_route("/digest", methods=["GET", "POST"])
+def digest(role: str = "", date: str = ""):
     if role not in ['acc', 'ceo']:
         return []
 
@@ -133,12 +133,12 @@ def dijest(role: str = "", date: str = ""):
         )
 
     dt = list(map(int, date.split(".")))
-    dijest_date = datetime(year=dt[2], month=dt[1], day=dt[0])
-    logger.info(dijest_date)
+    digest_date = datetime(year=dt[2], month=dt[1], day=dt[0])
+    logger.info(digest_date)
 
     global tf_vectorizer
     global topic_preds
-    result = get_digest(role_feats, tf_vectorizer, topic_preds, dijest_date)
+    result = get_digest(role_feats, tf_vectorizer, topic_preds, digest_date)
     return result
 
 
