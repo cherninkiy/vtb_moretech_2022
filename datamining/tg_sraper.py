@@ -42,11 +42,12 @@ def scrap_tg_channel(channel, date_from, date_till):
             if message.date > date_till:
                 break
 
+            article_url = f'{channel}/{message.id}'
             if not message.text or len(message.text) == 0:
-                logger.info(f'SKIPPED {channel}/{message.id}')
+                logger.info(f'SKIPPED {article_url}')
             else:
                 article = {
-                    'url': f'{channel}/{message.id}',
+                    'url': article_url,
                     'title': '',
                     'text': message.text,
                     'topic': '',
@@ -63,7 +64,7 @@ def scrap_tg_channel(channel, date_from, date_till):
                     article['tags'] = ' '.join(m)
 
                 result.append(article)
-                logger.info(f'APPLYED {channel}/{message.id} {article["title"]}')
+                logger.info(f'APPLYED {article_url} {article["title"]}')
     return result
 
 
@@ -75,8 +76,11 @@ if __name__ == "__main__":
     parser.add_argument("--channel")
     args = parser.parse_args()
 
-    date_from = localize_datetime(datetime_parse(args.date_from, dayfirst=True))
-    date_till = localize_datetime(datetime_parse(args.date_till, dayfirst=True))
+    dt = list(map(int, args.date_from.split(".")))
+    date_from = datetime(year=dt[2], month=dt[1], day=dt[0])
+
+    dt = list(map(int, args.date_till.split(".")))
+    date_till = datetime(year=dt[2], month=dt[1], day=dt[0])
 
     result = scrap_tg_channel(args.channel, date_from, date_till)
     print(result)

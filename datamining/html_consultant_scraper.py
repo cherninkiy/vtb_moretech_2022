@@ -3,6 +3,7 @@ import logging
 import requests
 import argparse
 from bs4 import BeautifulSoup
+from datetime import datetime
 from dateutil.parser import parse as datetime_parse
 from dateutil.relativedelta import relativedelta
 
@@ -95,8 +96,11 @@ if __name__ == "__main__":
     parser.add_argument("--date_till")
     args = parser.parse_args()
 
-    date_from = datetime_parse(args.date_from, dayfirst=True)
-    date_till = datetime_parse(args.date_till, dayfirst=True)
+    dt = list(map(int, args.date_from.split(".")))
+    date_from = datetime(year=dt[2], month=dt[1], day=dt[0])
+
+    dt = list(map(int, args.date_till.split(".")))
+    date_till = datetime(year=dt[2], month=dt[1], day=dt[0])
 
     url = 'https://www.consultant.ru/legalnews/chronomap/'
     result = scrap_consultant_news(url, date_from, date_till)

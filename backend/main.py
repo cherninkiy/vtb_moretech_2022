@@ -3,12 +3,12 @@ import joblib
 import uvicorn
 import logging
 import pandas as pd
+from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import FileResponse
-from typing import List
 
-from src.entities.app_params import NewsData, ArticleData
-from src.utils import make_preds, get_content, get_trends
+from src.utils import get_article, get_trends, get_digest
+
 
 HOST_ADDRESS = os.environ.get('HOST', default='0.0.0.0')
 PORT_NUMBER = os.environ.get('PORT', default=8501)
@@ -27,6 +27,8 @@ def startup():
     trends_model_path = f"{MODELS_PATH}/trends_lda_decomposer.pk"
     tf_vectorizer_path = f"{MODELS_PATH}/trends_tf_vectorizer.pk"
     tfidf_vectorizer_path = f"{MODELS_PATH}/trends_tfidf_vectorizer.pk"
+    acc_feats_path = f"{MODELS_PATH}/acc_feats.pk"
+    ceo_feats_path = f"{MODELS_PATH}/ceo_feats.pk"
     
     global trends_model
     trends_model = joblib.load(trends_model_path)
@@ -49,12 +51,24 @@ def startup():
     global topic_preds
     topic_preds = pd.read_csv(f"{DATA_PATH}/topic_preds.csv", parse_dates=['date'])
     topic_preds['topic'] = topic_preds['topic'].fillna('').str.split().apply(set)
-    logger.info(topic_preds.shape)
+    logger.debug(topic_preds.shape)
 
     global topic_trends
     topic_trends = pd.read_csv(f"{DATA_PATH}/topic_trends.csv", parse_dates=['date'])
     topic_trends['trend'] = topic_trends['trend'].fillna('').str.split().apply(set)
-    logger.info(topic_trends.shape)
+    logger.debug(topic_trends.shape)
+
+    global acc_feats
+    acc_feats = joblib.load(acc_feats_path)
+    if acc_feats is not None:
+        logger.info("Acc feats loaded...")
+        logger.debug(str(acc_feats))
+
+    global ceo_feats
+    ceo_feats = joblib.load(ceo_feats_path)
+    if ceo_feats is not None:
+        logger.info("Ceo feats loaded...")
+        logger.debug(str(ceo_feats))
 
 
 @app.on_event("shutdown")
@@ -93,7 +107,8 @@ def trends(date: str = ""):
             detail=f"Invalid User ID"
         )
 
-    trends_date = pd.to_datetime(date, dayfirst=True)
+    dt = list(map(int, date.split(".")))
+    trends_date = datetime(year=dt[2], month=dt[1], day=dt[0])
     logger.info(trends_date)
 
     global topic_preds
@@ -101,15 +116,30 @@ def trends(date: str = ""):
     return get_trends(topic_preds, topic_trends, trends_date)
 
 
-@app.api_route("/news", response_model=List[NewsData], methods=["GET", "POST"])
-def news(id: int = None):
-    global trends_model
-    if id is None:
+@app.api_route("/dijest", methods=["GET", "POST"])
+def dijest(role: str = "", date: str = ""):
+    if role not in ['acc', 'ceo']:
+        return []
+
+    if role == 'acc':
+        role_feats = acc_feats
+    if role == 'ceo':
+        role_feats = ceo_feats
+
+    if len(date) == 0:
         raise HTTPException(
             status_code=404,
-            detail=f"Invalid Request Parameter: id={id}"
+            detail=f"Invalid User ID"
         )
-    return make_preds(trends_model, id)
+
+    dt = list(map(int, date.split(".")))
+    dijest_date = datetime(year=dt[2], month=dt[1], day=dt[0])
+    logger.info(dijest_date)
+
+    global tf_vectorizer
+    global topic_preds
+    result = get_digest(role_feats, tf_vectorizer, topic_preds, dijest_date)
+    return result
 
 
 @app.api_route("/article", methods=["GET", "POST"])
@@ -120,7 +150,7 @@ def article(id: int = None):
             detail=f"Invalid Request Parameter: id={id}"
         )
     global topic_preds
-    return get_content(topic_preds, id)
+    return get_article(topic_preds, id)
 
 
 if __name__ == "__main__":
