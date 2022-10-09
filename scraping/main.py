@@ -7,7 +7,7 @@ from dateutil.parser import parse as datetime_parse
 
 from html_consultant_scraper import scrap_consultant_news
 from html_lenta_scraper import scrap_lenta_news
-from tg_sraper import scrap_tg_channel, localize_datetime
+from tg_scraper import scrap_tg_channel, localize_datetime
 
 
 logger = logging.getLogger(__name__)
