@@ -5,13 +5,13 @@
 - Scraping news sources
 - Deduplicating articles
 - Emphasizing news trends
-- Making up personal/role news dijest
+- Making up personal/role news digest
 
 ## Backend API Reference:
 
 - https://vtb-moretech2022.herokuapp.com/ - entry point
 - https://vtb-moretech2022.herokuapp.com/trends?date=${date} - list of trend news
-- https://vtb-moretech2022.herokuapp.com/dijest?role=[acc|ceo]&date=${date} - dijest news for role
+- https://vtb-moretech2022.herokuapp.com/digest?role=[acc|ceo]&date=${date} - digest news for role
 - https://vtb-moretech2022.herokuapp.com/article?id=${val} - article data
 
 **Parameter ${date} should be in form %d.%m.%y**
